@@ -1,13 +1,12 @@
 use futures_util::{SinkExt, StreamExt};
-use tokio::{io::{self, ErrorKind, AsyncReadExt, AsyncWriteExt}, net::TcpListener, task::JoinSet};
+use tokio::{io::{self, ErrorKind}, net::TcpListener, task::JoinSet};
 use tokio_tungstenite::accept_async;
 
-macro_rules! debug_print {
-    ($($arg:tt)*) => {
-        #[cfg(debug_assertions)]
-        { println!($($arg)*); }
-    };
-}
+mod macros;
+mod http;
+mod game_logic;
+
+use http::handle_http_server;
 
 #[tokio::main]
 async fn main() -> io::Result<()> {
@@ -21,26 +20,6 @@ async fn main() -> io::Result<()> {
     _ = tasks.join_all().await;
 
     Err(io::Error::new(ErrorKind::Other, "Reached an unreachable code"))
-}
-
-async fn handle_http_server(server: TcpListener) {
-    loop {
-        let Ok((mut socket, address)) = server.accept().await
-            else {debug_print!("Failed to accept http connection"); return};
-        debug_print!("New HTTP connection: {}", address);
-
-        tokio::spawn( async move {
-            let mut buffer = [0; 1024];
-            let Ok(n) = socket.read(&mut buffer).await else {return};
-
-            let request = String::from_utf8_lossy(&buffer[..n]);
-            debug_print!("Received HTTP request: {}", request);
-
-           let response = b"HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, World!";
-           let Err(e) = socket.write_all(response).await else {return};
-           debug_print!("Got error sending data: {}", e);
-        });
-    }
 }
 
 async fn handle_ws_server(server: TcpListener) {
@@ -65,7 +44,4 @@ async fn handle_ws_server(server: TcpListener) {
         });
     }
 }
-
-
-
 

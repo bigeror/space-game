@@ -3,8 +3,6 @@ use std::{ env, fs, path::PathBuf, process::Command };
 const OUT_DIR: &'static str = "client";
 
 fn main() {
-    println!("cargo:rerun-if-changed=client");
-
     // Request the output directory
     let out = env::var("PROFILE").unwrap();
     let out = PathBuf::from(format!("target/{}/{}", out, OUT_DIR));
