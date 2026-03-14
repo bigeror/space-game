@@ -13,14 +13,14 @@ export const init = async () => {
 	gl.enable(gl.BLEND);
 	gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-	let fsSource = await (await fetch("./shaders/shader.fs")).text();
-	let vsSource = await (await fetch("./shaders/shader.vs")).text();
+	let fsSource = await (await fetch("./shaders/shader.frag")).text();
+	let vsSource = await (await fetch("./shaders/shader.vert")).text();
 
 	const program = create_program(gl, fsSource, vsSource);
 	gl.useProgram(program);
-};
+}
 
-const create_program = (gl: WebGL2RenderingContext, fsSource: string, vsSource: string): WebGLProgram => {;
+const create_program = (gl: WebGL2RenderingContext, fsSource: string, vsSource: string): WebGLProgram => {
 	let vShader = gl.createShader(gl.VERTEX_SHADER)!;
 	let fShader = gl.createShader(gl.FRAGMENT_SHADER)!;
 
@@ -44,4 +44,4 @@ const create_program = (gl: WebGL2RenderingContext, fsSource: string, vsSource: 
 		throw gl.getProgramInfoLog(program);
 
 	return program;
-};
+}
